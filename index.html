@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farovonlik Maskani</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#0d47a1;color:white;line-height:1.6;}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 50px;background:rgba(0,0,0,0.8);position:sticky;top:0;z-index:1000;border-bottom:2px solid #00e5ff;}
+header h1{color:#00e5ff;font-size:1.8rem;}
+nav a{margin-left:25px;color:white;font-weight:500;padding:8px 15px;border-radius:8px;transition:0.3s;cursor:pointer;}
+nav a:hover{background:#00bcd4;color:black;}
+section{padding:60px 20px; max-width:1200px;margin:0 auto; display:none;}
+section.active{display:block;}
+.hero{text-align:center;padding:100px 20px;}
+.hero h2{font-size:2.8rem;margin-bottom:15px;background:linear-gradient(90deg,#00e5ff,#00bcd4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:#ccc;font-size:1.2rem;margin-bottom:30px;}
+.course-buttons{text-align:center;margin-top:40px;}
+.course-buttons button{margin:10px;padding:15px 25px;font-size:1rem;border:none;border-radius:10px;background:linear-gradient(90deg,#00bcd4,#00e5ff);color:white;cursor:pointer;transition:0.3s;}
+.course-buttons button:hover{transform:scale(1.05);}
+#registerForm, #adminPanel{max-width:500px;margin:30px auto;padding:30px;background:rgba(0,0,0,0.5);border-radius:15px;}
+#registerForm input,#registerForm button,#adminPanel input,#adminPanel textarea,#adminPanel button{width:100%;margin:10px 0;padding:10px;border-radius:10px;border:none;}
+#registerForm input,#adminPanel input,#adminPanel textarea{background:rgba(255,255,255,0.2);color:white;}
+#registerForm button,#adminPanel button{background:linear-gradient(90deg,#00bcd4,#00e5ff);color:white;font-weight:600;cursor:pointer;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.card{background:rgba(255,255,255,0.1);backdrop-filter:blur(15px);border-radius:15px;padding:20px;box-shadow:0 0 20px rgba(0,0,0,0.3);}
+.card h3{color:#00e5ff;margin-bottom:10px;}
+.card p{color:#ddd;margin-bottom:10px;}
+.card img, .card video{width:100%;border-radius:10px;margin-bottom:10px;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:200;}
+.modal-content{background:rgba(0,0,0,0.7);padding:30px;border-radius:15px;width:300px;text-align:center;}
+.modal-content input{width:100%;padding:10px;margin:10px 0;border-radius:10px;border:none;background:rgba(255,255,255,0.2);color:white;}
+footer{text-align:center;padding:25px;background:rgba(0,0,0,0.6);margin-top:40px;color:#aaa;}
+.preview img, .preview video{width:100%;border-radius:10px;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Farovonlik Maskani</h1>
+<nav>
+<a onclick="showSection('home')">Bosh sahifa</a>
+<a onclick="showSection('mahalla')">Mahalla</a>
+<a onclick="showSection('courses')">Kurslar</a>
+<a onclick="openLogin()">Admin</a>
+</nav>
+</header>
+
+<section id="home" class="active">
+<div class="hero">
+<h2>Navkat Mahalla va Farovonlik Maskani platformasi</h2>
+<p>Yangiliklar, kurslar va ro‘yxatdan o‘tish barchasi bir joyda!</p>
+</div>
+</section>
+
+<section id="mahalla">
+<h2>Yangiliklar - Navkat Mahalla</h2>
+<div class="cards" id="newsContainer"></div>
+</section>
+
+<section id="courses">
+<h2>Kurslar</h2>
+<div class="course-buttons">
+<button onclick="openRegister('Ingliz Tili')">Ingliz Tili</button>
+<button onclick="openRegister('Nemis Tili')">Nemis Tili</button>
+<button onclick="openRegister('Santexnika')">Santexnika</button>
+<button onclick="openRegister('IT')">IT</button>
+</div>
+</section>
+
+<div id="registerForm" style="display:none;">
+<h2>Kursga ro‘yxatdan o‘tish</h2>
+<input type="text" id="regName" placeholder="Ism familiya">
+<input type="text" id="regPhone" placeholder="Telefon raqamingiz">
+<input type="text" id="regCourse" readonly>
+<button onclick="submitRegistration()">Yuborish</button>
+</div>
+
+<div id="adminPanel" style="display:none;">
+<h2>Admin Panel</h2>
+<h3>Yangilik qo‘shish</h3>
+<input id="newsTitle" placeholder="Sarlavha">
+<textarea id="newsContent" rows="3" placeholder="Matn..."></textarea>
+<label style="margin-top:10px;">Rasm tanlash:</label>
+<input type="file" id="newsImageFile" accept="image/*">
+<label style="margin-top:10px;">Video tanlash:</label>
+<input type="file" id="newsVideoFile" accept="video/*">
+<div class="preview" id="previewContainer"></div>
+<button onclick="addNews()">Qo‘shish</button>
+<hr>
+<h3>Ro‘yxatdan o‘tganlar</h3>
+<div id="registrationsList"></div>
+<button onclick="logout()">Chiqish</button>
+</div>
+
+<div class="modal" id="loginModal">
+<div class="modal-content">
+<h3>Admin tizimiga kirish</h3>
+<input id="login" placeholder="Login">
+<input type="password" id="password" placeholder="Parol">
+<button onclick="checkLogin()">Kirish</button>
+</div>
+</div>
+
+<footer>© 2025 Farovonlik Maskani | Barcha huquqlar himoyalangan</footer>
+
+<script>
+const sections=document.querySelectorAll('section');
+function showSection(id){
+  sections.forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('registerForm').style.display='none';
+}
+
+// Registratsiya
+function openRegister(course){
+  document.getElementById('regCourse').value=course;
+  document.getElementById('registerForm').style.display='block';
+  window.scrollTo({top:document.getElementById('registerForm').offsetTop-50,behavior:'smooth'});
+}
+
+function submitRegistration(){
+  const name=document.getElementById('regName').value;
+  const phone=document.getElementById('regPhone').value;
+  const course=document.getElementById('regCourse').value;
+  if(name && phone){
+    let reg=JSON.parse(localStorage.getItem('registrations'))||[];
+    reg.unshift({name,phone,course});
+    localStorage.setItem('registrations',JSON.stringify(reg));
+    alert('Ro‘yxatdan o‘tish muvaffaqiyatli!');
+    document.getElementById('registerForm').style.display='none';
+    document.getElementById('regName').value='';
+    document.getElementById('regPhone').value='';
+  }else alert('Iltimos, barcha maydonlarni to‘ldiring!');
+}
+
+// Admin
+const modal=document.getElementById('loginModal');
+const adminPanel=document.getElementById('adminPanel');
+const previewContainer=document.getElementById('previewContainer');
+
+function openLogin(){modal.style.display='flex';}
+function checkLogin(){
+  const u=document.getElementById('login').value;
+  const p=document.getElementById('password').value;
+  if(u==='admin' && p==='12345'){
+    modal.style.display='none';
+    adminPanel.style.display='block';
+    showRegistrations();
+    showNews();
+  }else alert('Login yoki parol noto‘g‘ri!');
+}
+function logout(){adminPanel.style.display='none';}
+
+// Yangilik qo‘shish
+let selectedImage=null;
+let selectedVideo=null;
+
+document.getElementById('newsImageFile').addEventListener('change', function(e){
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      selectedImage=ev.target.result;
+      updatePreview();
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+document.getElementById('newsVideoFile').addEventListener('change', function(e){
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      selectedVideo=ev.target.result;
+      updatePreview();
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+function updatePreview(){
+  previewContainer.innerHTML='';
+  if(selectedImage) previewContainer.innerHTML+=`<img src="${selectedImage}" alt="Rasm">`;
+  if(selectedVideo) previewContainer.innerHTML+=`<video controls src="${selectedVideo}"></video>`;
+}
+
+function addNews(){
+  const title=document.getElementById('newsTitle').value;
+  const content=document.getElementById('newsContent').value;
+  if(title && content){
+    let news=JSON.parse(localStorage.getItem('newsList'))||[];
+    news.unshift({title,content,image:selectedImage,video:selectedVideo});
+    localStorage.setItem('newsList',JSON.stringify(news));
+    alert('Yangilik qo‘shildi!');
+    document.getElementById('newsTitle').value='';
+    document.getElementById('newsContent').value='';
+    document.getElementById('newsImageFile').value='';
+    document.getElementById('newsVideoFile').value='';
+    selectedImage=null;
+    selectedVideo=null;
+    previewContainer.innerHTML='';
+    showNews();
+  }else alert('Iltimos sarlavha va matnni kiriting!');
+}
+
+function showNews(){
+  const container=document.getElementById('newsContainer');
+  let news=JSON.parse(localStorage.getItem('newsList'))||[];
+  container.innerHTML=news.length?news.map(n=>`<div class="card">
+    <h3>${n.title}</h3>
+    <p>${n.content}</p>
+    ${n.image?`<img src="${n.image}" alt="Rasm">`:''}
+    ${n.video?`<video controls src="${n.video}"></video>`:''}
+  </div>`).join(''):'<p>Hali yangilik qo‘shilmagan</p>';
+}
+
+// Ro‘yxatdan o‘tganlar
+function showRegistrations(){
+  let reg=JSON.parse(localStorage.getItem('registrations'))||[];
+  const container=document.getElementById('registrationsList');
+  container.innerHTML=reg.length?reg.map(r=>`<div style="margin:10px;background:rgba(255,255,255,0.1);padding:10px;border-radius:10px;"><strong>${r.name}</strong> (${r.phone}) - ${r.course}</div>`).join(''):'<p>Hali hech kim ro‘yxatdan o‘tmagan</p>';
+}
+</script>
+
+</body>
+  </html>
